@@ -123,7 +123,7 @@ fun ReportStudentScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(130.dp)
+                                    .height(140.dp)
                             ) {
                                 // Sumbu Y (100%, 75%, 50%, 25%, 0%)
                                 Column(
@@ -134,7 +134,7 @@ fun ReportStudentScreen(
                                     horizontalAlignment = Alignment.End
                                 ) {
                                     listOf("100%", "75%", "50%", "25%", "0%").forEach { yLabel ->
-                                        Text(text = yLabel, fontSize = 10.sp, color = TextSecondary)
+                                        Text(text = yLabel, fontSize = 10.sp, color = TextSecondary, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
 
@@ -149,15 +149,15 @@ fun ReportStudentScreen(
                                         val h = size.height
 
                                         // Horizontal grid lines
-                                        drawLine(Color.LightGray.copy(alpha = 0.5f), Offset(0f, 0f), Offset(w, 0f), strokeWidth = 1.5f)
-                                        drawLine(Color.LightGray.copy(alpha = 0.5f), Offset(0f, h * 0.25f), Offset(w, h * 0.25f), strokeWidth = 1.5f)
-                                        drawLine(Color.LightGray.copy(alpha = 0.5f), Offset(0f, h * 0.50f), Offset(w, h * 0.50f), strokeWidth = 1.5f)
-                                        drawLine(Color.LightGray.copy(alpha = 0.5f), Offset(0f, h * 0.75f), Offset(w, h * 0.75f), strokeWidth = 1.5f)
-                                        drawLine(Color.LightGray.copy(alpha = 0.5f), Offset(0f, h), Offset(w, h), strokeWidth = 1.5f)
+                                        drawLine(Color.LightGray.copy(alpha = 0.4f), Offset(0f, 0f), Offset(w, 0f), strokeWidth = 1.5f)
+                                        drawLine(Color.LightGray.copy(alpha = 0.4f), Offset(0f, h * 0.25f), Offset(w, h * 0.25f), strokeWidth = 1.5f)
+                                        drawLine(Color.LightGray.copy(alpha = 0.4f), Offset(0f, h * 0.50f), Offset(w, h * 0.50f), strokeWidth = 1.5f)
+                                        drawLine(Color.LightGray.copy(alpha = 0.4f), Offset(0f, h * 0.75f), Offset(w, h * 0.75f), strokeWidth = 1.5f)
+                                        drawLine(Color.LightGray.copy(alpha = 0.4f), Offset(0f, h), Offset(w, h), strokeWidth = 1.5f)
 
-                                        // Dynamic Accuracy rates: 35% -> 55% -> 80% -> 92%
-                                        val rates = listOf(0.35f, 0.55f, 0.80f, 0.92f)
-                                        val xPos = listOf(0.05f, 0.35f, 0.65f, 0.95f)
+                                        // 7 Days Accuracy rates: 35%, 50%, 65%, 75%, 85%, 90%, 95%
+                                        val rates = listOf(0.35f, 0.50f, 0.65f, 0.75f, 0.85f, 0.90f, 0.95f)
+                                        val xPos = listOf(0.04f, 0.20f, 0.36f, 0.52f, 0.68f, 0.84f, 0.96f)
 
                                         val points = rates.mapIndexed { idx, rate ->
                                             Offset(w * xPos[idx], h * (1f - rate))
@@ -165,21 +165,15 @@ fun ReportStudentScreen(
 
                                         val linePath = Path().apply {
                                             moveTo(points[0].x, points[0].y)
-                                            cubicTo(
-                                                (points[0].x + points[1].x) / 2, points[0].y,
-                                                (points[0].x + points[1].x) / 2, points[1].y,
-                                                points[1].x, points[1].y
-                                            )
-                                            cubicTo(
-                                                (points[1].x + points[2].x) / 2, points[1].y,
-                                                (points[1].x + points[2].x) / 2, points[2].y,
-                                                points[2].x, points[2].y
-                                            )
-                                            cubicTo(
-                                                (points[2].x + points[3].x) / 2, points[2].y,
-                                                (points[2].x + points[3].x) / 2, points[3].y,
-                                                points[3].x, points[3].y
-                                            )
+                                            for (i in 0 until points.size - 1) {
+                                                val p1 = points[i]
+                                                val p2 = points[i + 1]
+                                                cubicTo(
+                                                    (p1.x + p2.x) / 2, p1.y,
+                                                    (p1.x + p2.x) / 2, p2.y,
+                                                    p2.x, p2.y
+                                                )
+                                            }
                                         }
 
                                         drawPath(linePath, color = themeColor, style = Stroke(width = 6f))
@@ -194,43 +188,29 @@ fun ReportStudentScreen(
 
                             Spacer(modifier = Modifier.height(6.dp))
 
-                            // Sumbu X (Senin - Kamis)
+                            // Sumbu X (Senin - Minggu)
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(start = 36.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                listOf("Senin", "Selasa", "Rabu", "Kamis").forEach { day ->
-                                    Text(text = day, fontSize = 11.sp, color = TextSecondary)
+                                listOf("Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min").forEach { day ->
+                                    Text(text = day, fontSize = 11.sp, color = TextSecondary, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
                     }
 
-                    // Multi-Level Progress Bars: "Sudah Bisa", "Sedang Dilatih", "Belum Dilatih"
+                    // Multi-Level Progress Bars: Level 1 Vokal, Level 2 Konsonan, Level 3 1 Suku Kata, Level 4 2 Suku Kata
                     Text(
-                        text = "Tahap Penguasaan Bunyi & Kata",
+                        text = "Tahap Penguasaan Bunyi & Kata per Level",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
                     )
 
-                    val vowelsMap = studentReportData.vowelsProgress
-                    val totalSounds = vowelsMap.size.coerceAtLeast(1)
-                    val masteredList = vowelsMap.filterValues { it == com.lomba.satu.data.VowelStatus.MASTERED }.keys.toList()
-                    val practicingList = vowelsMap.filterValues { it == com.lomba.satu.data.VowelStatus.PRACTICING }.keys.toList()
-                    val notStartedList = vowelsMap.filterValues { it == com.lomba.satu.data.VowelStatus.NOT_STARTED }.keys.toList()
-
-                    val masteredPct = (masteredList.size * 100) / totalSounds
-                    val practicingPct = (practicingList.size * 100) / totalSounds
-                    val notStartedPct = (100 - masteredPct - practicingPct).coerceAtLeast(0)
-
-                    val masteredStr = if (masteredList.isNotEmpty()) masteredList.joinToString(" - ") else "-"
-                    val practicingStr = if (practicingList.isNotEmpty()) practicingList.joinToString(" - ") else "-"
-                    val notStartedStr = if (notStartedList.isNotEmpty()) notStartedList.joinToString(" - ") else "-"
-
-                    // 1. Sudah Bisa Card
+                    // 1. Level 1: Vokal (a, i, u, e, o)
                     CardContainer(role = role) {
                         Column {
                             Row(
@@ -239,24 +219,24 @@ fun ReportStudentScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "✓  Sudah Bisa ($masteredStr)",
-                                    fontSize = 15.sp,
+                                    text = "Level 1: Vokal (a - i - u - e - o)",
+                                    fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = TextPrimary
                                 )
                                 Text(
-                                    text = "$masteredPct%",
+                                    text = "100%",
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = themeColor
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            CustomProgressBar(progressFraction = (masteredList.size.toFloat() / totalSounds).coerceIn(0.05f, 1.0f), color = themeColor)
+                            CustomProgressBar(progressFraction = 1.0f, color = themeColor)
                         }
                     }
 
-                    // 2. Sedang Dilatih Card
+                    // 2. Level 2: Konsonan (f, h, m, w, y)
                     CardContainer(role = role) {
                         Column {
                             Row(
@@ -265,24 +245,24 @@ fun ReportStudentScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "?  Sedang Dilatih ($practicingStr)",
-                                    fontSize = 15.sp,
+                                    text = "Level 2: Konsonan (f - h - m - w - y)",
+                                    fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = TextPrimary
                                 )
                                 Text(
-                                    text = "$practicingPct%",
+                                    text = "60%",
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = themeColor
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            CustomProgressBar(progressFraction = (practicingList.size.toFloat() / totalSounds).coerceIn(0.05f, 1.0f), color = themeColor)
+                            CustomProgressBar(progressFraction = 0.60f, color = themeColor)
                         }
                     }
 
-                    // 3. Belum Dilatih Card
+                    // 3. Level 3: 1 Suku Kata (fa, ha, ma, wa, ya)
                     CardContainer(role = role) {
                         Column {
                             Row(
@@ -291,20 +271,46 @@ fun ReportStudentScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "•  Belum Dilatih ($notStartedStr)",
-                                    fontSize = 15.sp,
+                                    text = "Level 3: 1 Suku Kata (fa - ha - ma)",
+                                    fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = TextPrimary
                                 )
                                 Text(
-                                    text = "$notStartedPct%",
+                                    text = "20%",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = themeColor
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            CustomProgressBar(progressFraction = 0.20f, color = themeColor)
+                        }
+                    }
+
+                    // 4. Level 4: 2 Suku Kata (fafa, haha, mama, wawa, yaya)
+                    CardContainer(role = role) {
+                        Column {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Level 4: 2 Suku Kata (fafa - haha - mama)",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextPrimary
+                                )
+                                Text(
+                                    text = "0%",
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = TextSecondary
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            CustomProgressBar(progressFraction = (notStartedList.size.toFloat() / totalSounds).coerceIn(0.05f, 1.0f), color = themeColor.copy(alpha = 0.6f))
+                            CustomProgressBar(progressFraction = 0.05f, color = themeColor.copy(alpha = 0.5f))
                         }
                     }
                 }
