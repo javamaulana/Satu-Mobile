@@ -71,8 +71,54 @@ object SampleData {
             name = "Kelas 1",
             studentCount = 2,
             students = listOf(
-                StudentItem("de0b25f8-600f-4af4-9449-7796348f5a65", "Gibran", "Aktif", picturePassword = listOf(1, 5, 3), isLocked = false),
-                StudentItem("3218fcaa-cd88-4aba-91da-37fd561c02d2", "Raka", "Aktif", picturePassword = listOf(2, 5, 8), isLocked = false)
+                StudentItem(
+                    id = "de0b25f8-600f-4af4-9449-7796348f5a65",
+                    name = "Gibran",
+                    lastSession = "Aktif",
+                    picturePassword = listOf(1, 5, 3),
+                    isLocked = false,
+                    totalPoints = 240,
+                    practiceDays7 = 7,
+                    streakDays = 6,
+                    vowelsProgress = mapOf(
+                        "a" to VowelStatus.MASTERED,
+                        "i" to VowelStatus.MASTERED,
+                        "u" to VowelStatus.MASTERED,
+                        "e" to VowelStatus.MASTERED,
+                        "o" to VowelStatus.MASTERED,
+                        "f" to VowelStatus.PRACTICING,
+                        "h" to VowelStatus.NOT_STARTED,
+                        "m" to VowelStatus.NOT_STARTED,
+                        "w" to VowelStatus.NOT_STARTED,
+                        "y" to VowelStatus.NOT_STARTED,
+                        "fa" to VowelStatus.NOT_STARTED,
+                        "fafa" to VowelStatus.NOT_STARTED
+                    )
+                ),
+                StudentItem(
+                    id = "3218fcaa-cd88-4aba-91da-37fd561c02d2",
+                    name = "Raka",
+                    lastSession = "Aktif",
+                    picturePassword = listOf(2, 5, 8),
+                    isLocked = false,
+                    totalPoints = 150,
+                    practiceDays7 = 4,
+                    streakDays = 3,
+                    vowelsProgress = mapOf(
+                        "a" to VowelStatus.MASTERED,
+                        "i" to VowelStatus.MASTERED,
+                        "u" to VowelStatus.MASTERED,
+                        "e" to VowelStatus.MASTERED,
+                        "o" to VowelStatus.PRACTICING,
+                        "f" to VowelStatus.PRACTICING,
+                        "h" to VowelStatus.NOT_STARTED,
+                        "m" to VowelStatus.NOT_STARTED,
+                        "w" to VowelStatus.NOT_STARTED,
+                        "y" to VowelStatus.NOT_STARTED,
+                        "fa" to VowelStatus.NOT_STARTED,
+                        "fafa" to VowelStatus.NOT_STARTED
+                    )
+                )
             )
         )
     )
