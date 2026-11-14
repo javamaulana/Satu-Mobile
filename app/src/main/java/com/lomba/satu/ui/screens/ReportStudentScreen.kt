@@ -51,16 +51,19 @@ fun ReportStudentScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var studentReportData by remember { mutableStateOf(student) }
+    var studentReportData by remember(student) { mutableStateOf(student) }
     var activeToast by remember { mutableStateOf<ToastBannerData?>(null) }
 
-    val themeColor = if (role == AppRole.GURU) PrimaryYellow else PrimaryOrange
+    val themeColor = PrimaryYellow
 
-    LaunchedEffect(student.id) {
+    LaunchedEffect(student) {
         if (role == AppRole.GURU && ApiService.teacherToken != null) {
             try {
                 val rep = ApiService.fetchStudentReport(student.id)
-                studentReportData = rep
+                val mergedMap = student.vowelsProgress.toMutableMap().apply {
+                    putAll(rep.vowelsProgress)
+                }
+                studentReportData = rep.copy(vowelsProgress = mergedMap)
             } catch (_: Exception) {}
         }
     }
@@ -192,29 +195,35 @@ fun ReportStudentScreen(
                                         drawLine(Color.LightGray.copy(alpha = 0.4f), Offset(0f, h), Offset(w, h), strokeWidth = 1.5f)
 
                                         val xPos = listOf(0.04f, 0.20f, 0.36f, 0.52f, 0.68f, 0.84f, 0.96f)
+                                        val activeCount = studentReportData.practiceDays7.coerceIn(1, 7)
 
-                                        val points = chartRates.mapIndexed { idx, rate ->
+                                        val activePoints = chartRates.take(activeCount).mapIndexed { idx, rate ->
                                             Offset(w * xPos[idx], h * (1f - rate))
                                         }
 
-                                        val linePath = Path().apply {
-                                            moveTo(points[0].x, points[0].y)
-                                            for (i in 0 until points.size - 1) {
-                                                val p1 = points[i]
-                                                val p2 = points[i + 1]
-                                                cubicTo(
-                                                    (p1.x + p2.x) / 2, p1.y,
-                                                    (p1.x + p2.x) / 2, p2.y,
-                                                    p2.x, p2.y
-                                                )
+                                        if (activePoints.size == 1) {
+                                            drawCircle(color = SurfaceWhite, radius = 10f, center = activePoints[0])
+                                            drawCircle(color = themeColor, radius = 6f, center = activePoints[0])
+                                        } else if (activePoints.size > 1) {
+                                            val linePath = Path().apply {
+                                                moveTo(activePoints[0].x, activePoints[0].y)
+                                                for (i in 0 until activePoints.size - 1) {
+                                                    val p1 = activePoints[i]
+                                                    val p2 = activePoints[i + 1]
+                                                    cubicTo(
+                                                        (p1.x + p2.x) / 2, p1.y,
+                                                        (p1.x + p2.x) / 2, p2.y,
+                                                        p2.x, p2.y
+                                                    )
+                                                }
                                             }
-                                        }
 
-                                        drawPath(linePath, color = themeColor, style = Stroke(width = 6f))
+                                            drawPath(linePath, color = themeColor, style = Stroke(width = 6f))
 
-                                        points.forEach { pt ->
-                                            drawCircle(color = SurfaceWhite, radius = 10f, center = pt)
-                                            drawCircle(color = themeColor, radius = 6f, center = pt)
+                                            activePoints.forEach { pt ->
+                                                drawCircle(color = SurfaceWhite, radius = 10f, center = pt)
+                                                drawCircle(color = themeColor, radius = 6f, center = pt)
+                                            }
                                         }
                                     }
                                 }
