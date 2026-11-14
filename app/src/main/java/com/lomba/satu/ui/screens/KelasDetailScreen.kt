@@ -1,6 +1,9 @@
 package com.lomba.satu.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -47,6 +50,38 @@ fun KelasDetailScreen(
             title = classItem.name,
             role = role,
             onBackClick = onBack,
+            actionSlot = {
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = PrimaryYellow,
+                    border = BorderStroke(1.5.dp, TextPrimary.copy(alpha = 0.25f)),
+                    shadowElevation = 2.dp,
+                    modifier = Modifier.clickable {
+                        ApiService.downloadClassReportPdf(context, classItem.id)
+                        activeToast = ToastBannerData(
+                            "Unduh PDF Berhasil",
+                            "PDF laporan perkembangan kelas '${classItem.name}' berhasil diunduh."
+                        )
+                    }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "📥",
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = "Unduh Laporan",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = SurfaceWhite
+                        )
+                    }
+                }
+            },
             modifier = Modifier.fillMaxSize()
         ) {
             Column(
@@ -94,25 +129,13 @@ fun KelasDetailScreen(
                     }
                 }
 
-                // Bottom Action Buttons: "Unduh PDF Laporan Kelas", "Tambah Anak", and "Profile Terkunci"
+                // Bottom Action Buttons: "Tambah Anak" and "Profile Terkunci"
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SecondaryButton(
-                        text = "📄 Unduh PDF Laporan Kelas (7 Hari)",
-                        onClick = {
-                            ApiService.downloadClassReportPdf(context, classItem.id)
-                            activeToast = ToastBannerData(
-                                "Unduh PDF Berhasil",
-                                "PDF laporan perkembangan kelas '${classItem.name}' berhasil diunduh."
-                            )
-                        },
-                        role = role
-                    )
-
                     PrimaryButton(
                         text = "Tambah Anak",
                         onClick = onAddStudentClick,

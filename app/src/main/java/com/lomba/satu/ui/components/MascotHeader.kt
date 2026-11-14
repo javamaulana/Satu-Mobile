@@ -31,6 +31,7 @@ fun MascotHeader(
     modifier: Modifier = Modifier,
     role: AppRole = AppRole.GURU,
     onBackClick: (() -> Unit)? = null,
+    actionSlot: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val headerBg = if (role == AppRole.GURU) PrimaryYellow else PrimaryOrange
@@ -55,16 +56,27 @@ fun MascotHeader(
                     .padding(top = 40.dp, start = 20.dp, end = 20.dp, bottom = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Screen Title
-                Text(
-                    text = title,
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.SansSerif,
-                    color = TextPrimary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                // Screen Title Row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = if (actionSlot != null) Arrangement.SpaceBetween else Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = title,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.SansSerif,
+                        color = TextPrimary,
+                        textAlign = if (actionSlot != null) TextAlign.Start else TextAlign.Center
+                    )
+
+                    if (actionSlot != null) {
+                        actionSlot()
+                    }
+                }
 
                 // Body content slot
                 content()
