@@ -32,25 +32,28 @@ fun TugasHarianScreen(
     val themeColor = if (role == AppRole.GURU) PrimaryYellow else PrimaryOrange
 
     LaunchedEffect(Unit) {
-        if (SampleData.tasks.isEmpty()) {
-            val saved = TaskStorage.loadTasks(context)
-            if (saved.isNotEmpty()) {
-                SampleData.tasks.addAll(saved)
-            }
-        }
         if (role == AppRole.GURU && ApiService.teacherToken != null) {
             try {
                 val apiTasks = ApiService.fetchHomeworkTasks()
-                if (apiTasks.isNotEmpty()) {
-                    val localTaskIds = SampleData.tasks.map { it.id }.toSet()
-                    apiTasks.forEach { task ->
-                        if (!localTaskIds.contains(task.id)) {
-                            SampleData.tasks.add(task)
-                        }
+                // Full sync with VPS: clear deleted tasks and set active VPS tasks
+                SampleData.tasks.clear()
+                SampleData.tasks.addAll(apiTasks)
+                TaskStorage.saveTasks(context, SampleData.tasks)
+            } catch (_: Exception) {
+                if (SampleData.tasks.isEmpty()) {
+                    val saved = TaskStorage.loadTasks(context)
+                    if (saved.isNotEmpty()) {
+                        SampleData.tasks.addAll(saved)
                     }
-                    TaskStorage.saveTasks(context, SampleData.tasks)
                 }
-            } catch (_: Exception) {}
+            }
+        } else {
+            if (SampleData.tasks.isEmpty()) {
+                val saved = TaskStorage.loadTasks(context)
+                if (saved.isNotEmpty()) {
+                    SampleData.tasks.addAll(saved)
+                }
+            }
         }
     }
 
