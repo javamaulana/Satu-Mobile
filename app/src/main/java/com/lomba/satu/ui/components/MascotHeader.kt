@@ -71,15 +71,14 @@ fun MascotHeader(
             }
         }
 
-        // Floating App Logo sitting right on the curved top edge of the card
+        // Floating Mascot sitting right on the curved top edge of the card
         Image(
-            painter = painterResource(id = R.drawable.logoapp),
-            contentDescription = "SATU Logo",
+            painter = painterResource(id = R.drawable.maskot),
+            contentDescription = "Mascot",
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 18.dp)
-                .height(98.dp)
-                .widthIn(max = 160.dp)
+                .padding(top = 22.dp)
+                .size(105.dp)
         )
 
         // Back Arrow Button if onBackClick is provided

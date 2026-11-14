@@ -58,12 +58,12 @@ fun CustomAppPopup(
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // App Logo Header Image
+                    // Mascot Header Image
                     Image(
-                        painter = painterResource(id = R.drawable.logoapp),
-                        contentDescription = "SATU Logo",
+                        painter = painterResource(id = R.drawable.maskot),
+                        contentDescription = "Mascot",
                         modifier = Modifier
-                            .height(64.dp)
+                            .size(72.dp)
                             .padding(bottom = 12.dp)
                     )
 

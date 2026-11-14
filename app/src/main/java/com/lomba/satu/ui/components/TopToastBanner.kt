@@ -84,9 +84,9 @@ fun TopToastBanner(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Image(
-                                    painter = painterResource(id = R.drawable.logoapp),
-                                    contentDescription = "SATU Logo",
-                                    modifier = Modifier.size(32.dp)
+                                    painter = painterResource(id = R.drawable.maskot),
+                                    contentDescription = "Mascot Icon",
+                                    modifier = Modifier.size(28.dp)
                                 )
                             }
                         }
