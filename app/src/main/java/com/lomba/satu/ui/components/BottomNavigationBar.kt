@@ -23,11 +23,11 @@ import com.lomba.satu.ui.theme.PrimaryOrange
 import com.lomba.satu.ui.theme.PrimaryYellow
 import com.lomba.satu.ui.theme.SurfaceWhite
 
-enum class BottomTab(val teacherTitle: String, val parentTitle: String) {
-    PETA("Peta", "Beranda"),
-    TUGAS("Tugas", "Progress"),
-    ANAK("Anak", "Laporan"),
-    AKUN("Akun", "Akun")
+enum class BottomTab(val title: String) {
+    PETA("Peta"),
+    TUGAS("Tugas"),
+    ANAK("Anak"),
+    AKUN("Akun")
 }
 
 @Composable
@@ -37,7 +37,7 @@ fun AppBottomNavigationBar(
     modifier: Modifier = Modifier,
     role: AppRole = AppRole.GURU
 ) {
-    val activeColor = if (role == AppRole.GURU) PrimaryYellow else PrimaryOrange
+    val activeColor = PrimaryYellow
     val inactiveColor = activeColor.copy(alpha = 0.5f)
 
     Box(
@@ -64,7 +64,6 @@ fun AppBottomNavigationBar(
                     val isSelected = tab == currentTab
                     val tint by animateColorAsState(if (isSelected) activeColor else inactiveColor, label = "tabTint")
                     val indicatorWidth by animateDpAsState(if (isSelected) 36.dp else 0.dp, label = "tabIndicator")
-                    val labelText = if (role == AppRole.GURU) tab.teacherTitle else tab.parentTitle
 
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -92,7 +91,7 @@ fun AppBottomNavigationBar(
                         }
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = labelText,
+                            text = tab.title,
                             fontSize = 12.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
                             color = tint

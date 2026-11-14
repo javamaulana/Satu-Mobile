@@ -27,45 +27,22 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    currentRole: AppRole,
-    onRoleToggle: (AppRole) -> Unit,
+    currentRole: AppRole = AppRole.GURU,
+    onRoleToggle: (AppRole) -> Unit = {},
     onLoginSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var email by remember { mutableStateOf(if (currentRole == AppRole.GURU) "guru@satu.id" else "java@gmail.com") }
-    var password by remember { mutableStateOf(if (currentRole == AppRole.GURU) "gurusatu!" else "12345678") }
+    var email by remember { mutableStateOf("guru@satu.id") }
+    var password by remember { mutableStateOf("gurusatu!") }
     var isLoading by remember { mutableStateOf(false) }
-    var isActivationMode by remember { mutableStateOf(false) }
     var activePopupData by remember { mutableStateOf<PopupData?>(null) }
     var activeToast by remember { mutableStateOf<ToastBannerData?>(null) }
 
-    LaunchedEffect(currentRole) {
-        if (currentRole == AppRole.GURU) {
-            email = "guru@satu.id"
-            password = "gurusatu!"
-        } else {
-            email = "java@gmail.com"
-            password = "12345678"
-        }
-    }
-
-    if (isActivationMode && currentRole == AppRole.WALI_MURID) {
-        AktivasiOrangTuaScreen(
-            onMasuk = {
-                onLoginSuccess()
-            },
-            onBackToLogin = {
-                isActivationMode = false
-            }
-        )
-        return
-    }
-
     Box(modifier = modifier.fillMaxSize()) {
         MascotHeader(
-            title = "Login",
-            role = currentRole,
+            title = "Login Guru",
+            role = AppRole.GURU,
             modifier = Modifier.fillMaxSize()
         ) {
             Column(
@@ -74,63 +51,13 @@ fun LoginScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Role Selector Switcher Pill
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp)
-                        .background(
-                            color = Color.Black.copy(alpha = 0.06f),
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(4.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .background(
-                                color = if (currentRole == AppRole.GURU) PrimaryYellow else Color.Transparent,
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .clickable { onRoleToggle(AppRole.GURU) }
-                            .padding(vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Guru",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (currentRole == AppRole.GURU) SurfaceWhite else TextSecondary
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .background(
-                                color = if (currentRole == AppRole.WALI_MURID) PrimaryOrange else Color.Transparent,
-                                shape = RoundedCornerShape(16.dp)
-                            )
-                            .clickable { onRoleToggle(AppRole.WALI_MURID) }
-                            .padding(vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Wali Murid",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (currentRole == AppRole.WALI_MURID) SurfaceWhite else TextSecondary
-                        )
-                    }
-                }
-
                 // Input Fields
                 CustomTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = "Email",
-                    placeholder = "Masukkan email anda",
-                    role = currentRole,
+                    label = "Email Guru",
+                    placeholder = "Masukkan email guru",
+                    role = AppRole.GURU,
                     keyboardType = KeyboardType.Email,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -140,7 +67,7 @@ fun LoginScreen(
                     onValueChange = { password = it },
                     label = "Kata Sandi",
                     placeholder = "Masukkan kata sandi",
-                    role = currentRole,
+                    role = AppRole.GURU,
                     isPassword = true,
                     keyboardType = KeyboardType.Password,
                     modifier = Modifier.padding(bottom = 24.dp)
@@ -154,30 +81,18 @@ fun LoginScreen(
                         coroutineScope.launch {
                             isLoading = true
                             try {
-                                if (currentRole == AppRole.GURU) {
-                                    val result = ApiService.loginTeacher(email, password)
-                                    val teacherObj = result.optJSONObject("teacher")
-                                    val teacherName = teacherObj?.optString("name") ?: "Guru"
-                                    activePopupData = PopupData(
-                                        title = "Berhasil Login!",
-                                        message = "Selamat datang kembali, $teacherName.",
-                                        onConfirm = onLoginSuccess
-                                    )
-                                } else {
-                                    val result = ApiService.loginParent(email, password)
-                                    val parentObj = result.optJSONObject("parent")
-                                    val parentName = parentObj?.optString("name") ?: "Orang tua Raka"
-                                    activePopupData = PopupData(
-                                        title = "Berhasil Login!",
-                                        message = "Selamat datang kembali, $parentName.",
-                                        onConfirm = onLoginSuccess
-                                    )
-                                }
-                            } catch (_: Exception) {
-                                val roleText = if (currentRole == AppRole.GURU) "Guru" else "Wali Murid"
+                                val result = ApiService.loginTeacher(email, password)
+                                val teacherObj = result.optJSONObject("teacher")
+                                val teacherName = teacherObj?.optString("name") ?: "Guru"
                                 activePopupData = PopupData(
                                     title = "Berhasil Login!",
-                                    message = "Selamat datang di Sahabat Tunarunggu ($roleText).",
+                                    message = "Selamat datang kembali, $teacherName.",
+                                    onConfirm = onLoginSuccess
+                                )
+                            } catch (_: Exception) {
+                                activePopupData = PopupData(
+                                    title = "Berhasil Login!",
+                                    message = "Selamat datang di Sahabat Tunarungu (Mode Guru).",
                                     onConfirm = onLoginSuccess
                                 )
                             } finally {
@@ -185,17 +100,8 @@ fun LoginScreen(
                             }
                         }
                     },
-                    role = currentRole
+                    role = AppRole.GURU
                 )
-
-                if (currentRole == AppRole.WALI_MURID) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    SecondaryButton(
-                        text = "🔗 Aktivasi Akun via Link Undangan Guru",
-                        onClick = { isActivationMode = true },
-                        role = currentRole
-                    )
-                }
 
                 // Forgot password link
                 Box(
@@ -219,7 +125,7 @@ fun LoginScreen(
         // Animated Top Toast Banner
         TopToastBanner(
             data = activeToast,
-            role = currentRole,
+            role = AppRole.GURU,
             onDismiss = { activeToast = null }
         )
     }
@@ -228,7 +134,7 @@ fun LoginScreen(
     activePopupData?.let { popupData ->
         CustomAppPopup(
             data = popupData,
-            role = currentRole,
+            role = AppRole.GURU,
             onDismiss = { activePopupData = null }
         )
     }

@@ -21,14 +21,14 @@ import com.lomba.satu.ui.theme.*
 
 @Composable
 fun AkunScreen(
-    currentRole: AppRole,
-    onRoleToggle: (AppRole) -> Unit,
+    currentRole: AppRole = AppRole.GURU,
+    onRoleToggle: (AppRole) -> Unit = {},
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isLogoutConfirmState by remember { mutableStateOf(false) }
     var activeToast by remember { mutableStateOf<ToastBannerData?>(null) }
-    val themeColor = if (currentRole == AppRole.GURU) PrimaryYellow else PrimaryOrange
+    val themeColor = PrimaryYellow
 
     Box(modifier = modifier.fillMaxSize()) {
         MascotHeader(

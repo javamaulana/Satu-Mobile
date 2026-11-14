@@ -137,38 +137,25 @@ fun MainAppContent(
                     )
                 }
             ) { innerPadding ->
-                val navKey = if (currentRole == AppRole.GURU) {
-                    when (currentTab) {
-                        BottomTab.PETA -> "PETA_SUMMARY_MATRIX"
-                        BottomTab.TUGAS -> when {
-                            isAddingTask -> "TAMBAH_TUGAS"
-                            else -> "TUGAS"
-                        }
-                        BottomTab.ANAK -> when {
-                            isAddingChildFlow -> "ADD_CHILD"
-                            isAddingChildPinStep -> "ADD_CHILD_PIN"
-                            inviteLink != null -> "INVITE_LINK"
-                            isViewingBuatPin -> "ANAK_BUAT_PIN"
-                            isViewingProfileTerkunci -> "ANAK_PROFILE_LOCKED"
-                            isViewingReport -> "ANAK_REPORT"
-                            isViewingKendaliManual -> "ANAK_KENDALI_MANUAL"
-                            selectedStudent != null -> "STUDENT_${selectedStudent?.id}"
-                            selectedClass != null -> "CLASS_${selectedClass?.id}"
-                            else -> "ANAK_HOME"
-                        }
-                        BottomTab.AKUN -> "AKUN"
+                val navKey = when (currentTab) {
+                    BottomTab.PETA -> "PETA_SUMMARY_MATRIX"
+                    BottomTab.TUGAS -> when {
+                        isAddingTask -> "TAMBAH_TUGAS"
+                        else -> "TUGAS"
                     }
-                } else {
-                    when (currentTab) {
-                        BottomTab.PETA -> when {
-                            isParentPracticing -> "PARENT_PRACTICE"
-                            isParentTaskWordsView -> "PARENT_TASK_WORDS"
-                            else -> "PARENT_HOME"
-                        }
-                        BottomTab.TUGAS -> if (isViewingReport) "PARENT_REPORT" else "PARENT_PROGRESS"
-                        BottomTab.ANAK -> "PARENT_REPORT"
-                        BottomTab.AKUN -> "PARENT_AKUN"
+                    BottomTab.ANAK -> when {
+                        isAddingChildFlow -> "ADD_CHILD"
+                        isAddingChildPinStep -> "ADD_CHILD_PIN"
+                        inviteLink != null -> "INVITE_LINK"
+                        isViewingBuatPin -> "ANAK_BUAT_PIN"
+                        isViewingProfileTerkunci -> "ANAK_PROFILE_LOCKED"
+                        isViewingReport -> "ANAK_REPORT"
+                        isViewingKendaliManual -> "ANAK_KENDALI_MANUAL"
+                        selectedStudent != null -> "STUDENT_${selectedStudent?.id}"
+                        selectedClass != null -> "CLASS_${selectedClass?.id}"
+                        else -> "ANAK_HOME"
                     }
+                    BottomTab.AKUN -> "AKUN"
                 }
 
                 Box(
@@ -199,214 +186,156 @@ fun MainAppContent(
                         },
                         label = "ScreenTransition"
                     ) { _ ->
-                        if (currentRole == AppRole.GURU) {
-                            when (currentTab) {
-                                BottomTab.PETA -> {
-                                    PetaMatrixSummaryScreen(role = currentRole)
-                                }
+                        when (currentTab) {
+                            BottomTab.PETA -> {
+                                PetaMatrixSummaryScreen(role = AppRole.GURU)
+                            }
 
-                                BottomTab.TUGAS -> {
-                                    if (isAddingTask) {
-                                        TambahTugasScreen(
-                                            role = currentRole,
-                                            onTaskAdded = { isAddingTask = false },
-                                            onBack = { isAddingTask = false }
-                                        )
-                                    } else {
-                                        TugasHarianScreen(
-                                            role = currentRole,
-                                            onTambahTugasClick = { isAddingTask = true }
-                                        )
-                                    }
-                                }
-
-                                BottomTab.ANAK -> {
-                                    when {
-                                        isAddingChildFlow -> {
-                                            TambahAnakScreen(
-                                                role = currentRole,
-                                                onNextStep = { name, wa ->
-                                                    pendingAddChildName = name
-                                                    pendingAddChildWa = wa
-                                                    isAddingChildPinStep = true
-                                                    isAddingChildFlow = false
-                                                },
-                                                onBackClick = { isAddingChildFlow = false }
-                                            )
-                                        }
-                                        isAddingChildPinStep -> {
-                                            BuatPinScreen(
-                                                role = currentRole,
-                                                title = "Buat Pin",
-                                                onPinSaved = { selectedPin ->
-                                                    val cName = pendingAddChildName ?: "Anak Baru"
-                                                    val cWa = pendingAddChildWa
-                                                    coroutineScope.launch {
-                                                        try {
-                                                            if (ApiService.teacherToken != null) {
-                                                                val res = ApiService.createStudent(
-                                                                    nickname = cName,
-                                                                    picturePassword = selectedPin,
-                                                                    parentWhatsapp = cWa
-                                                                )
-                                                                val inv = res.optJSONObject("invite")
-                                                                val url = inv?.optString("inviteUrl") ?: "https://tunarungu.neotelemetri.id/undangan/0_bBi9PksspIQtnVHE93AX3da7QVzdKL"
-                                                                inviteLink = url
-                                                            } else {
-                                                                inviteLink = "https://tunarungu.neotelemetri.id/undangan/0_bBi9PksspIQtnVHE93AX3da7QVzdKL"
-                                                            }
-                                                        } catch (_: Exception) {
-                                                            inviteLink = "https://tunarungu.neotelemetri.id/undangan/0_bBi9PksspIQtnVHE93AX3da7QVzdKL"
-                                                        } finally {
-                                                            isAddingChildPinStep = false
-                                                        }
-                                                    }
-                                                },
-                                                onBack = { isAddingChildPinStep = false }
-                                            )
-                                        }
-                                        inviteLink != null -> {
-                                            AnakDitambahkanScreen(
-                                                inviteLink = inviteLink!!,
-                                                role = currentRole,
-                                                onDone = {
-                                                    inviteLink = null
-                                                    pendingAddChildName = null
-                                                    pendingAddChildWa = null
-                                                }
-                                            )
-                                        }
-                                        isViewingBuatPin -> {
-                                            BuatPinScreen(
-                                                role = currentRole,
-                                                onPinSaved = { newPin ->
-                                                    selectedStudent?.let { st ->
-                                                        val updatedSt = st.copy(picturePassword = newPin)
-                                                        selectedStudent = updatedSt
-                                                        coroutineScope.launch {
-                                                            try {
-                                                                if (ApiService.teacherToken != null) {
-                                                                    ApiService.resetStudentPin(st.id, newPin)
-                                                                }
-                                                            } catch (_: Exception) {}
-                                                        }
-                                                    }
-                                                    isViewingBuatPin = false
-                                                },
-                                                onBack = { isViewingBuatPin = false }
-                                            )
-                                        }
-                                        isViewingProfileTerkunci -> {
-                                            ProfileTerkunciScreen(
-                                                role = currentRole,
-                                                onBack = { isViewingProfileTerkunci = false }
-                                            )
-                                        }
-                                        isViewingReport -> {
-                                            ReportStudentScreen(
-                                                student = selectedStudent ?: SampleData.classes.first().students.first(),
-                                                role = currentRole,
-                                                onBack = { isViewingReport = false }
-                                            )
-                                        }
-                                        isViewingKendaliManual -> {
-                                            KendaliManualScreen(
-                                                role = currentRole,
-                                                onResetPinClick = { isViewingBuatPin = true },
-                                                onBack = { isViewingKendaliManual = false }
-                                            )
-                                        }
-                                        selectedStudent != null -> {
-                                            StudentDetailScreen(
-                                                student = selectedStudent!!,
-                                                role = currentRole,
-                                                onReportClick = { isViewingReport = true },
-                                                onKendaliManualClick = { isViewingKendaliManual = true },
-                                                onBack = { selectedStudent = null }
-                                            )
-                                        }
-                                        selectedClass != null -> {
-                                            KelasDetailScreen(
-                                                classItem = selectedClass!!,
-                                                role = currentRole,
-                                                onStudentSelected = { student -> selectedStudent = student },
-                                                onAddStudentClick = { isAddingChildFlow = true },
-                                                onProfileTerkunciClick = { isViewingProfileTerkunci = true },
-                                                onBack = { selectedClass = null }
-                                            )
-                                        }
-                                        else -> {
-                                            KelasSayaScreen(
-                                                role = currentRole,
-                                                onClassSelected = { classItem -> selectedClass = classItem }
-                                            )
-                                        }
-                                    }
-                                }
-
-                                BottomTab.AKUN -> {
-                                    AkunScreen(
-                                        currentRole = currentRole,
-                                        onRoleToggle = onRoleToggle,
-                                        onLogout = onLogout
+                            BottomTab.TUGAS -> {
+                                if (isAddingTask) {
+                                    TambahTugasScreen(
+                                        role = AppRole.GURU,
+                                        onTaskAdded = { isAddingTask = false },
+                                        onBack = { isAddingTask = false }
+                                    )
+                                } else {
+                                    TugasHarianScreen(
+                                        role = AppRole.GURU,
+                                        onTambahTugasClick = { isAddingTask = true }
                                     )
                                 }
                             }
-                        } else {
-                            // Wali Murid Screens (Parent Mode)
-                            when (currentTab) {
-                                BottomTab.PETA -> { // "Beranda"
-                                    when {
-                                        isParentPracticing -> {
-                                            ParentPracticeScreen(
-                                                word = selectedPracticeWord,
-                                                tutorialUrl = "https://tunarungu.neotelemetri.id/tutorial/t1-$selectedPracticeWord.mp4",
-                                                onBack = { isParentPracticing = false }
-                                            )
-                                        }
-                                        isParentTaskWordsView -> {
-                                            ParentTaskWordsScreen(
-                                                words = parentWordsState,
-                                                onWordSelected = { word ->
-                                                    selectedPracticeWord = word
-                                                    isParentPracticing = true
-                                                },
-                                                onBack = { isParentTaskWordsView = false }
-                                            )
-                                        }
-                                        else -> {
-                                            ParentHomeScreen(
-                                                onTaskClick = { taskWords ->
-                                                    if (taskWords.isNotEmpty()) parentWordsState = taskWords
-                                                    isParentTaskWordsView = true
-                                                },
-                                                onStartPracticeClick = { taskWords ->
-                                                    if (taskWords.isNotEmpty()) {
-                                                        parentWordsState = taskWords
-                                                        selectedPracticeWord = taskWords.first()
-                                                        isParentPracticing = true
-                                                    } else {
-                                                        isParentTaskWordsView = true
+
+                            BottomTab.ANAK -> {
+                                when {
+                                    isAddingChildFlow -> {
+                                        TambahAnakScreen(
+                                            role = AppRole.GURU,
+                                            onNextStep = { name, wa ->
+                                                pendingAddChildName = name
+                                                pendingAddChildWa = wa
+                                                isAddingChildPinStep = true
+                                                isAddingChildFlow = false
+                                            },
+                                            onBackClick = { isAddingChildFlow = false }
+                                        )
+                                    }
+                                    isAddingChildPinStep -> {
+                                        BuatPinScreen(
+                                            role = AppRole.GURU,
+                                            title = "Buat Pin",
+                                            onPinSaved = { selectedPin ->
+                                                val cName = pendingAddChildName ?: "Anak Baru"
+                                                val cWa = pendingAddChildWa
+                                                coroutineScope.launch {
+                                                    try {
+                                                        if (ApiService.teacherToken != null) {
+                                                            val res = ApiService.createStudent(
+                                                                nickname = cName,
+                                                                picturePassword = selectedPin,
+                                                                parentWhatsapp = cWa
+                                                            )
+                                                            val inv = res.optJSONObject("invite")
+                                                            val url = inv?.optString("inviteUrl") ?: "https://tunarungu.neotelemetri.id/undangan/0_bBi9PksspIQtnVHE93AX3da7QVzdKL"
+                                                            inviteLink = url
+                                                        } else {
+                                                            inviteLink = "https://tunarungu.neotelemetri.id/undangan/0_bBi9PksspIQtnVHE93AX3da7QVzdKL"
+                                                        }
+                                                    } catch (_: Exception) {
+                                                        inviteLink = "https://tunarungu.neotelemetri.id/undangan/0_bBi9PksspIQtnVHE93AX3da7QVzdKL"
+                                                    } finally {
+                                                        isAddingChildPinStep = false
                                                     }
-                                                },
-                                                onViewProgressClick = { currentTab = BottomTab.TUGAS }
-                                            )
-                                        }
+                                                }
+                                            },
+                                            onBack = { isAddingChildPinStep = false }
+                                        )
+                                    }
+                                    inviteLink != null -> {
+                                        AnakDitambahkanScreen(
+                                            inviteLink = inviteLink!!,
+                                            role = AppRole.GURU,
+                                            onDone = {
+                                                inviteLink = null
+                                                pendingAddChildName = null
+                                                pendingAddChildWa = null
+                                            }
+                                        )
+                                    }
+                                    isViewingBuatPin -> {
+                                        BuatPinScreen(
+                                            role = AppRole.GURU,
+                                            onPinSaved = { newPin ->
+                                                selectedStudent?.let { st ->
+                                                    val updatedSt = st.copy(picturePassword = newPin)
+                                                    selectedStudent = updatedSt
+                                                    coroutineScope.launch {
+                                                        try {
+                                                            if (ApiService.teacherToken != null) {
+                                                                ApiService.resetStudentPin(st.id, newPin)
+                                                            }
+                                                        } catch (_: Exception) {}
+                                                    }
+                                                }
+                                                isViewingBuatPin = false
+                                            },
+                                            onBack = { isViewingBuatPin = false }
+                                        )
+                                    }
+                                    isViewingProfileTerkunci -> {
+                                        ProfileTerkunciScreen(
+                                            role = AppRole.GURU,
+                                            onBack = { isViewingProfileTerkunci = false }
+                                        )
+                                    }
+                                    isViewingReport -> {
+                                        ReportStudentScreen(
+                                            student = selectedStudent ?: SampleData.classes.first().students.first(),
+                                            role = AppRole.GURU,
+                                            onBack = { isViewingReport = false }
+                                        )
+                                    }
+                                    isViewingKendaliManual -> {
+                                        KendaliManualScreen(
+                                            role = AppRole.GURU,
+                                            onResetPinClick = { isViewingBuatPin = true },
+                                            onBack = { isViewingKendaliManual = false }
+                                        )
+                                    }
+                                    selectedStudent != null -> {
+                                        StudentDetailScreen(
+                                            student = selectedStudent!!,
+                                            role = AppRole.GURU,
+                                            onReportClick = { isViewingReport = true },
+                                            onKendaliManualClick = { isViewingKendaliManual = true },
+                                            onBack = { selectedStudent = null }
+                                        )
+                                    }
+                                    selectedClass != null -> {
+                                        KelasDetailScreen(
+                                            classItem = selectedClass!!,
+                                            role = AppRole.GURU,
+                                            onStudentSelected = { student -> selectedStudent = student },
+                                            onAddStudentClick = { isAddingChildFlow = true },
+                                            onProfileTerkunciClick = { isViewingProfileTerkunci = true },
+                                            onBack = { selectedClass = null }
+                                        )
+                                    }
+                                    else -> {
+                                        KelasSayaScreen(
+                                            role = AppRole.GURU,
+                                            onClassSelected = { classItem -> selectedClass = classItem }
+                                        )
                                     }
                                 }
-                                BottomTab.TUGAS -> { // "Progress"
-                                    if (isViewingReport) {
-                                        ParentReportScreen(onBack = { isViewingReport = false })
-                                    } else {
-                                        ParentProgressScreen(onViewReportClick = { isViewingReport = true })
-                                    }
-                                }
-                                BottomTab.ANAK -> { // "Laporan"
-                                    ParentReportScreen(onBack = {})
-                                }
-                                BottomTab.AKUN -> { // "Akun"
-                                    ParentAkunScreen(onLogout = onLogout)
-                                }
+                            }
+
+                            BottomTab.AKUN -> {
+                                AkunScreen(
+                                    currentRole = AppRole.GURU,
+                                    onRoleToggle = {},
+                                    onLogout = onLogout
+                                )
                             }
                         }
                     }
