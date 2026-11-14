@@ -1,8 +1,10 @@
 package com.lomba.satu.data
 
+import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Environment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -743,13 +745,33 @@ data class AttemptResponse(
         )
     }
 
-    // 15. Download Class PDF Report
+    // 15. Download Class PDF Report via Native Android DownloadManager with Bearer Token
     fun downloadClassReportPdf(context: Context, classroomId: String) {
         val targetClassId = if (classroomId.isNotBlank()) classroomId else (currentClassroomId ?: "faaa9241-3458-436a-95a4-4203256f6931")
         val pdfUrl = "$BASE_URL/dashboard/class/report.pdf?classroomId=$targetClassId&days=7"
+        val fileName = "Laporan_Perkembangan_Kelas_${System.currentTimeMillis()}.pdf"
+
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(pdfUrl))
-            context.startActivity(intent)
-        } catch (_: Exception) {}
+            val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val request = DownloadManager.Request(Uri.parse(pdfUrl)).apply {
+                setTitle("Laporan Perkembangan Kelas")
+                setDescription("Mengunduh laporan PDF kelas SATU...")
+                setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+                setMimeType("application/pdf")
+
+                if (teacherToken != null) {
+                    addRequestHeader("Authorization", "Bearer $teacherToken")
+                } else if (parentToken != null) {
+                    addRequestHeader("Authorization", "Bearer $parentToken")
+                }
+            }
+            downloadManager.enqueue(request)
+        } catch (_: Exception) {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(pdfUrl))
+                context.startActivity(intent)
+            } catch (_: Exception) {}
+        }
     }
 }

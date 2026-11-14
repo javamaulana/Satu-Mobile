@@ -59,8 +59,8 @@ fun KelasDetailScreen(
                     modifier = Modifier.clickable {
                         ApiService.downloadClassReportPdf(context, classItem.id)
                         activeToast = ToastBannerData(
-                            "Unduh PDF Berhasil",
-                            "PDF laporan perkembangan kelas '${classItem.name}' berhasil diunduh."
+                            "Mengunduh PDF Laporan",
+                            "PDF laporan kelas '${classItem.name}' sedang diunduh ke folder Downloads HP."
                         )
                     }
                 ) {
