@@ -20,9 +20,8 @@ import com.lomba.satu.ui.theme.*
 @Composable
 fun StudentDetailScreen(
     student: StudentItem,
-    role: AppRole,
-    onReportClick: () -> Unit,
-    onKendaliManualClick: () -> Unit,
+    role: AppRole = AppRole.GURU,
+    onResetPinClick: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -48,7 +47,7 @@ fun StudentDetailScreen(
                 CardContainer(role = role) {
                     Column {
                         Text(
-                            text = "Pin Anak",
+                            text = "Pin Gambar Murid saat Ini",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = TextPrimary
@@ -86,7 +85,7 @@ fun StudentDetailScreen(
                 }
             }
 
-            // Bottom action buttons: "Report Perkembangan" and "Kendali Manual"
+            // Bottom action button: Direct "Reset PIN Gambar Murid"
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -94,14 +93,8 @@ fun StudentDetailScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 PrimaryButton(
-                    text = "Report Perkembangan",
-                    onClick = onReportClick,
-                    role = role
-                )
-
-                SecondaryButton(
-                    text = "Kendali Manual",
-                    onClick = onKendaliManualClick,
+                    text = "🔑 Reset PIN Gambar Murid",
+                    onClick = onResetPinClick,
                     role = role
                 )
             }

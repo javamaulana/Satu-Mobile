@@ -306,8 +306,7 @@ fun MainAppContent(
                                         StudentDetailScreen(
                                             student = selectedStudent!!,
                                             role = AppRole.GURU,
-                                            onReportClick = { isViewingReport = true },
-                                            onKendaliManualClick = { isViewingKendaliManual = true },
+                                            onResetPinClick = { isViewingBuatPin = true },
                                             onBack = { selectedStudent = null }
                                         )
                                     }

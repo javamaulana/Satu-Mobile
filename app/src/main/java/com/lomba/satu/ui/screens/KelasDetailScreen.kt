@@ -27,6 +27,7 @@ fun KelasDetailScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     var studentsList by remember { mutableStateOf(classItem.students) }
     var activeToast by remember { mutableStateOf<ToastBannerData?>(null) }
 
@@ -93,13 +94,25 @@ fun KelasDetailScreen(
                     }
                 }
 
-                // Bottom Action Buttons: "Tambah Anak" and "Profile Terkunci"
+                // Bottom Action Buttons: "Unduh PDF Laporan Kelas", "Tambah Anak", and "Profile Terkunci"
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    SecondaryButton(
+                        text = "📄 Unduh PDF Laporan Kelas (7 Hari)",
+                        onClick = {
+                            ApiService.downloadClassReportPdf(context, classItem.id)
+                            activeToast = ToastBannerData(
+                                "Unduh PDF Berhasil",
+                                "PDF laporan perkembangan kelas '${classItem.name}' berhasil diunduh."
+                            )
+                        },
+                        role = role
+                    )
+
                     PrimaryButton(
                         text = "Tambah Anak",
                         onClick = onAddStudentClick,

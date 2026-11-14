@@ -1,5 +1,8 @@
 package com.lomba.satu.data
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -738,5 +741,15 @@ data class AttemptResponse(
             totalPoints = 180,
             homeworkDone = false
         )
+    }
+
+    // 15. Download Class PDF Report
+    fun downloadClassReportPdf(context: Context, classroomId: String) {
+        val targetClassId = if (classroomId.isNotBlank()) classroomId else (currentClassroomId ?: "faaa9241-3458-436a-95a4-4203256f6931")
+        val pdfUrl = "$BASE_URL/dashboard/class/report.pdf?classroomId=$targetClassId&days=7"
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(pdfUrl))
+            context.startActivity(intent)
+        } catch (_: Exception) {}
     }
 }
